@@ -31,9 +31,12 @@ class ProducerConsumerQ:
         return frame
 
 
+# Extract frame from file
 def extract_frames(file_name, output_q):
     count = 0
+    # Load file
     vid_cap = cv2.VideoCapture(file_name)
+    # Read frame
     success, image = vid_cap.read()
 
     while success:
@@ -42,26 +45,30 @@ def extract_frames(file_name, output_q):
         print(f'Reading frame {count} {success}')
         count += 1
 
+    # Indicates when extraction complete
     output_q.put(STOP)
     print('Frame extraction complete')
 
 
+# Convert colored frames into grayscale
 def convert_grayscale(input_q, output_q):
-    count = 0  # frame count
-    input_frame = input_q.get()  # get input colored frame
+    count = 0
+    input_frame = input_q.get()
 
     while type(input_frame) != int:
         print(f'Converting frame {count}')
         grayscale_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY)
-        output_q.put(grayscale_frame)  # add frame to queue
+        output_q.put(grayscale_frame)
         count += 1
-        input_frame = input_q.get()  # get next input colored frame
+        input_frame = input_q.get()
 
+    # Indicates when conversion complete
     output_q.put(STOP)
     print('Frame conversion complete')
     return
 
 
+# Displays frames using cv2.imshow()
 def display_frames(input_q):
     count = 0
     input_frame = input_q.get()
@@ -79,6 +86,7 @@ def display_frames(input_q):
     cv2.destroyAllWindows()
 
 
+# Creating producer and consumer "pipelines"
 extract_to_grayscale_q = ProducerConsumerQ()
 grayscale_to_display_q = ProducerConsumerQ()
 
